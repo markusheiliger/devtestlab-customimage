@@ -27,6 +27,7 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Deploy Azure Resources
+        run: |
           az deployment sub create --location ${{ env.location }} --template-file ./arm/azuredeploy.json
 
       - id: packer-definitions
