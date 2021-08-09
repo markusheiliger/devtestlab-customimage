@@ -31,8 +31,7 @@ jobs:
       - name: Deploy Azure Resources
         id: azure-resources
         run: |
-          PARAMS="{ \"resourceGroup\": { \"value\": \"${{ env.resourceGroup }}\" }, \"galleryName\": { \"value\": \"${{ env.galleryName }}\" }, \"location\": { \"value\": \"${{ env.location }}\" } }"
-          RESULT=$(az deployment sub create --location ${{ env.location }} --template-file ./arm/azuredeploy.json -o json) --parameters "$PARAMS"
+          RESULT=$(az deployment sub create --location ${{ env.location }} --template-file ./arm/azuredeploy.json -o json) --parameters resourceGroup=${{ env.resourceGroup }} --parameters galleryName=${{ env.galleryName }} --parameters location=${{ env.location }}
           echo "::set-output name=resourceGroup::$(echo "$RESULT" | jq --raw-output '.properties.outputs.resourceGroup.value')"
           echo "::set-output name=galleryName::$(echo "$RESULT" | jq --raw-output '.properties.outputs.galleryName.value')"
 
