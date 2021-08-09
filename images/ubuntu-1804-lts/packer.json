@@ -25,7 +25,9 @@
 				"image_version": "{{user `version`}}",
 				"replication_regions": ["{{user `location`}}"],
 				"storage_account_type": "Standard_LRS"
-			}
+			},
+			"managed_image_name": "{{user `image`}}",
+			"managed_image_resource_group_name": "{{user `resourceGroup`}}"
 		}
 	],
 	"provisioners": [
