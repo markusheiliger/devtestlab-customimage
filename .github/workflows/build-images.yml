@@ -56,12 +56,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      # - name: Fetch tags for GitVersion
-      #   run: git fetch --tags
-
-      # - name: Fetch main for GitVersion
-      #   if: github.ref != 'refs/heads/main'
-      #   run: git branch --create-reflog main origin/main
+      - name: Unshallow Repository
+        run: git fetch --unshallow --update-head-ok origin '+refs/heads/*:refs/heads/*'
 
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v0.9.7
