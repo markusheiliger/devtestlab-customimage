@@ -18,13 +18,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Detect Image Definitions
+      - id: packer-definitions
+        name: Detect Packer Definitions
         run: | 
           find . -type f -name 'packer.json' | sed -r 's|/[^/]+$||' | sort -u | jq -R -s -c 'split("\n")[:-1]'
           echo "::set-output name=matrix::$(find . -type f -name 'packer.json' | sed -r 's|/[^/]+$||' | sort -u | jq -R -s -c 'split("\n")[:-1]')"
 
     outputs:
-        matrix: ${{ steps.set-matrix.outputs.matrix }}
+        matrix: ${{ steps.packer-definitions.outputs.matrix }}
 
   build:
     needs: prepare
