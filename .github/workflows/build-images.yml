@@ -30,7 +30,8 @@ jobs:
         run: |
           RESULT=$(az deployment sub create --location ${{ env.location }} --template-file ./arm/azuredeploy.json -o json)
           echo "$RESUT"
-          echo "::set-output name=resourceGroup::$(echo "$RESULT" | jq .)"
+          echo "$RESULT" | jq './properties/outputs/resourceGroup/value')
+          echo "::set-output name=resourceGroup::$(echo "$RESULT" | jq './properties/outputs/resourceGroup/value')"
           echo "::set-output name=galleryName::$(echo "$RESULT" | jq .)"
 
       - id: packer-definitions
