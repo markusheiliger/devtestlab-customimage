@@ -36,7 +36,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - run: echo "${{ imagePath }}"
+      - run: echo "${{ matrix.imagePath }}"
       # - name: Login to Azure
       #   uses: azure/login@v1
       #   with:
