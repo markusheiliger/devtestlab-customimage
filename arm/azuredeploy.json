@@ -3,21 +3,24 @@
 	"contentVersion": "1.0.0.0",
 	"parameters": {},
 	"functions": [],
-	"variables": {},
+	"variables": {
+		"resourceGroup": "images",
+		"galleryName": "gallery"
+	},
 	"resources": [
 		{
-			"name": "images",
+			"name": "[variables('resourceGroup')]",
 			"type": "Microsoft.Resources/resourceGroups",
 			"apiVersion": "2019-10-01",
 			"location": "[deployment().location]",
 		},
 		{
-			"name": "gallery",
+			"name": "[variables('galleryName')]",
 			"type": "Microsoft.Resources/deployments",
 			"apiVersion": "2020-10-01",
-			"resourceGroup": "images",
+			"resourceGroup": "[variables('resourceGroup')]",
 			"dependsOn": [	
-				"[resourceId('Microsoft.Resources/resourceGroups', 'images')]"
+				"[resourceId('Microsoft.Resources/resourceGroups', variables('resourceGroup'))]"
 			],
 			"properties": {
 				"expressionEvaluationOptions": {
@@ -52,5 +55,14 @@
 			}
 		}
 	],
-	"outputs": {}
+	"outputs": {
+		"resoureGroup": {
+			"type": "string",
+			"value": "[variables('resourceGroup')]"
+		},
+		"galleryName": {
+			"type": "string",
+			"value": "[variables('galleryName')]"
+		}
+	}
 }

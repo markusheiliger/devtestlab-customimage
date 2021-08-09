@@ -28,7 +28,10 @@ jobs:
 
       - name: Deploy Azure Resources
         run: |
-          az deployment sub create --location ${{ env.location }} --template-file ./arm/azuredeploy.json
+          RESULT=$(az deployment sub create --location ${{ env.location }} --template-file ./arm/azuredeploy.json -o json)
+          echo "$RESUT"
+          echo "::set-output name=resourceGroup::$(echo "$RESULT" | jq .)"
+          echo "::set-output name=galleryName::$(echo "$RESULT" | jq .)"
 
       - id: packer-definitions
         name: Detect Packer Definitions
@@ -49,6 +52,17 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Fetch tags for GitVersion
+        run: git fetch --tags
+
+      - name: Fetch main for GitVersion
+        if: github.ref != 'refs/heads/main'
+        run: git branch --create-reflog main origin/main
+
+      - name: GitVersion
+        id: gitversion 
+        uses: roryprimrose/rungitversion@v1.0.0
+
       - name: Login to Azure
         uses: azure/login@v1
         with:
@@ -60,5 +74,7 @@ jobs:
       - name: Build Image
         run: |
           IMAGE="$(basename "$(dirname "${{ matrix.imagePath }}")")"
-          echo $IMAGE
-          packer build -var "image=$IMAGE" -var "location=${{ env.location }}" "${{ matrix.imagePath }}" 
+          SUBSCRIPTION="$(az account show --query 'id' -o tsv)"
+          RESOURCEGROUP=""
+          GALLERYNAME=""
+          packer build -var "image=$IMAGE" -var "version=${{ steps.gitversion.outputs.MajorMinorPatch }}" -var "location=${{ env.location }}" -var "subscription=$SUBSCRIPTION" -var "resourceGroup=$RESOURCEGROUP" -var "galleryName=$GALLERYNAME" "${{ matrix.imagePath }}" 
