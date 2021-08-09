@@ -38,9 +38,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - run: echo "${{ matrix.imagePath }}"
-      
       - name: Login to Azure
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Setup Packer
+        uses: hashicorp-contrib/setup-packer@v1.0.0
+
+      - name: Build Image
+        run: packer build "${{ matrix.imagePath }}"
