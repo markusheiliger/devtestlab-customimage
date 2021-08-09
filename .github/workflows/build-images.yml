@@ -21,8 +21,8 @@ jobs:
       - id: packer-definitions
         name: Detect Packer Definitions
         run: | 
-          find . -type f -name 'packer.json' | sed -r 's|/[^/]+$||' | sort -u | jq -R -s -c 'split("\n")[:-1]'
-          echo "::set-output name=matrix::$(find . -type f -name 'packer.json' | sed -r 's|/[^/]+$||' | sort -u | jq -R -s -c 'split("\n")[:-1]')"
+          # echo "::set-output name=matrix::$(find . -type f -name 'packer.json' | sed -r 's|/[^/]+$||' | sort -u | jq -R -s -c 'split("\n")[:-1]')"
+          echo "::set-output name=matrix::$(find . -type f -name 'packer.json' | jq -R -s -c 'split("\n")[:-1]')"
 
     outputs:
         matrix: ${{ steps.packer-definitions.outputs.matrix }}
