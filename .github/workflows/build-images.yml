@@ -26,17 +26,8 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Evaluate Azure Context
-        id: azure-context
-        run: |
-          echo "::set-output name=subscription::$(az account show --query "id" -o tsv)"
-
-      - name: Run ARM deploy
-        uses: azure/arm-deploy@v1
-        with:
-          subscriptionId: ${{ steps.azure-context.outputs.subscription }}
-          template: ./arm/azuredeploy.json
-          parameters: location=${{ env.location }}
+      - name: Deploy Azure Resources
+          az deployment sub create --location ${{ env.location }} --template-file ./arm/azuredeploy.json
 
       - id: packer-definitions
         name: Detect Packer Definitions
