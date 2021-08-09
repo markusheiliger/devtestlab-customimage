@@ -47,4 +47,7 @@ jobs:
         uses: hashicorp-contrib/setup-packer@v1.0.0
 
       - name: Build Image
-        run: packer build -var 'image=$(basename "$(dirname "${{ matrix.imagePath }}")")' "${{ matrix.imagePath }}" 
+        run: |
+          IMAGE="$(basename "$(dirname "${{ matrix.imagePath }}")")"
+          echo $IMAGE
+          packer build -var "image=$IMAGE" "${{ matrix.imagePath }}" 
