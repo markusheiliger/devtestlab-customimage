@@ -56,7 +56,7 @@
 		}
 	],
 	"outputs": {
-		"resoureGroup": {
+		"resourceGroup": {
 			"type": "string",
 			"value": "[variables('resourceGroup')]"
 		},
