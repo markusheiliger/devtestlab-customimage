@@ -4,9 +4,6 @@
 	  "type": "azure-arm",
 	  "use_azure_cli_auth": true,
   
-	//   "managed_image_resource_group_name": "images",
-	//   "managed_image_name": "lab1",
-  
 	  "os_type": "Linux",
 	  "image_publisher": "Canonical",
 	  "image_offer": "UbuntuServer",
