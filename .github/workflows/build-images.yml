@@ -20,15 +20,24 @@ jobs:
 
       - name: Detect Image Definitions
         run: | 
-          find . -type f -name 'packer.json' | sed -r 's|/[^/]+$||' |sort -u
+          echo "::set-output name=matrix::$(find . -type f -name 'packer.json' | sed -r 's|/[^/]+$||' | sort -u | jq -R -s -c 'split("\n")[:-1]')
 
-  # build:
-  #   runs-on: ubuntu-latest
+    outputs:
+        matrix: ${{ steps.set-matrix.outputs.matrix }}
 
-  #   steps:
-  #     - uses: actions/checkout@v2
+  build:
+    needs: prepare
+    runs-on: ubuntu-latest
 
-  #     - name: Login to Azure
-  #       uses: azure/login@v1
-  #       with:
-  #         creds: ${{ secrets.AZURE_CREDENTIALS }}
+    strategy:
+        matrix:
+            imagePath: ${{ fromJson(needs.prepare.outputs.matrix) }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - run: echo "${{ imagePath }}"
+      # - name: Login to Azure
+      #   uses: azure/login@v1
+      #   with:
+      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
