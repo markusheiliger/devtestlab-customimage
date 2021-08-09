@@ -1,6 +1,7 @@
 {
 	"variables": {
-		"image": ""
+		"image": "",
+		"location": ""
 	},
 	"builders": [
 		{
@@ -12,7 +13,7 @@
 			"image_publisher": "Canonical",
 			"image_offer": "UbuntuServer",
 			"image_sku": "18.04-LTS",
-			"location": "westeurope",
+			"location": "{{user `location`}}",
 			"vm_size": "Standard_B1s"
 		}
 	],

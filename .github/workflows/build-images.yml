@@ -1,5 +1,8 @@
 name: Build Images
 
+env:
+  location: westeurope
+
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
@@ -18,10 +21,26 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Evaluate Azure Context
+        id: azure-context
+        run: |
+          echo "::set-output name=subscription::$(az account show --query "id" -o tsv)"
+
+      - name: Run ARM deploy
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: ${{ steps.azure-context.outputs.subscription }}
+          template: ./arm/azuredeploy.json
+          parameters: location=${{ env.location }}
+
       - id: packer-definitions
         name: Detect Packer Definitions
         run: | 
-          # echo "::set-output name=matrix::$(find . -type f -name 'packer.json' | sed -r 's|/[^/]+$||' | sort -u | jq -R -s -c 'split("\n")[:-1]')"
           echo "::set-output name=matrix::$(find . -type f -name 'packer.json' | jq -R -s -c 'split("\n")[:-1]')"
 
     outputs:
@@ -50,4 +69,4 @@ jobs:
         run: |
           IMAGE="$(basename "$(dirname "${{ matrix.imagePath }}")")"
           echo $IMAGE
-          packer build -var "image=$IMAGE" "${{ matrix.imagePath }}" 
+          packer build -var "image=$IMAGE" -var "location=${{ env.location }}" "${{ matrix.imagePath }}" 

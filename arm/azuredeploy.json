@@ -1,0 +1,60 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"location": {
+			"type": "string"
+		}
+	},
+	"functions": [],
+	"variables": {},
+	"resources": [
+		{
+			"name": "images",
+			"type": "Microsoft.Resources/resourceGroups",
+			"apiVersion": "2019-10-01",
+			"location": "[parameters('location')]",
+		},
+		{
+			"name": "gallery",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2020-10-01",
+			"resourceGroup": "images",
+			"dependsOn": [	
+				"[resourceId('Microsoft.Resources/resourceGroups', 'images')]"
+			],
+			"properties": {
+				"expressionEvaluationOptions": {
+					"scope": "inner"
+				},
+				"mode": "Incremental",
+				"parameters": {
+					"location": {
+						"value": "[parameters('location')]"
+					}
+				},
+				"template": {
+					"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+					"contentVersion": "1.0.0.0",
+					"parameters": {
+						"location": {
+							"type": "string"
+						}
+					},
+					"variables": {},
+					"resources": [
+						{
+							"type": "Microsoft.Compute/galleries",
+							"name": "gallery",
+							"apiVersion": "2019-12-01",
+							"location": "[parameters('location')]"
+
+						}
+					],
+					"outputs": {}
+				}
+			}
+		}
+	],
+	"outputs": {}
+}
