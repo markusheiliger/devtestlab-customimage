@@ -1,26 +1,36 @@
 {
 	"$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
 	"contentVersion": "1.0.0.0",
-	"parameters": {},
-	"functions": [],
-	"variables": {
-		"resourceGroup": "images",
-		"galleryName": "gallery"
+	"parameters": {
+		"resourceGroup": {
+			"type": "string",
+			"defaultValue": "images"
+		},
+		"galleryName": {
+			"type": "string",
+			"defaultValue": "gallery"
+		},
+		"location": {
+			"type": "string",
+			"defaultValue": "[deployment().location]"
+		}
 	},
+	"functions": [],
+	"variables": {},
 	"resources": [
 		{
-			"name": "[variables('resourceGroup')]",
+			"name": "[parameters('resourceGroup')]",
 			"type": "Microsoft.Resources/resourceGroups",
 			"apiVersion": "2019-10-01",
 			"location": "[deployment().location]",
 		},
 		{
-			"name": "[variables('galleryName')]",
+			"name": "[parameters('galleryName')]",
 			"type": "Microsoft.Resources/deployments",
 			"apiVersion": "2020-10-01",
-			"resourceGroup": "[variables('resourceGroup')]",
-			"dependsOn": [	
-				"[resourceId('Microsoft.Resources/resourceGroups', variables('resourceGroup'))]"
+			"resourceGroup": "[parameters('resourceGroup')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/resourceGroups', parameters('resourceGroup'))]"
 			],
 			"properties": {
 				"expressionEvaluationOptions": {
@@ -58,11 +68,11 @@
 	"outputs": {
 		"resourceGroup": {
 			"type": "string",
-			"value": "[variables('resourceGroup')]"
+			"value": "[parameters('resourceGroup')]"
 		},
 		"galleryName": {
 			"type": "string",
-			"value": "[variables('galleryName')]"
+			"value": "[parameters('galleryName')]"
 		}
 	}
 }

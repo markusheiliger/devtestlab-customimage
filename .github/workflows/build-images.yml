@@ -1,6 +1,8 @@
 name: Build Images
 
 env:
+  resourceGroup: images
+  galleryName: gallery
   location: westeurope
 
 on:
@@ -29,9 +31,8 @@ jobs:
       - name: Deploy Azure Resources
         id: azure-resources
         run: |
-          RESULT=$(az deployment sub create --location ${{ env.location }} --template-file ./arm/azuredeploy.json -o json)
-          echo "$RESULT" | jq --raw-output '.properties.outputs.resourceGroup.value'
-          echo "$RESULT" | jq --raw-output '.properties.outputs.galleryName.value'
+          PARAMS="{ \"resourceGroup\": { \"value\": \"${{ env.resourceGroup }}\" }, \"galleryName\": { \"value\": \"${{ env.galleryName }}\" }, \"location\": { \"value\": \"${{ env.location }}\" } }"
+          RESULT=$(az deployment sub create --location ${{ env.location }} --template-file ./arm/azuredeploy.json -o json) --parameters "$PARAMS"
           echo "::set-output name=resourceGroup::$(echo "$RESULT" | jq --raw-output '.properties.outputs.resourceGroup.value')"
           echo "::set-output name=galleryName::$(echo "$RESULT" | jq --raw-output '.properties.outputs.galleryName.value')"
 
