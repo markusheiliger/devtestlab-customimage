@@ -27,6 +27,7 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Deploy Azure Resources
+        id: azure-resources
         run: |
           RESULT=$(az deployment sub create --location ${{ env.location }} --template-file ./arm/azuredeploy.json -o json)
           echo "$RESULT" | jq --raw-output '.properties.outputs.resourceGroup.value'
@@ -34,13 +35,15 @@ jobs:
           echo "::set-output name=resourceGroup::$(echo "$RESULT" | jq --raw-output '.properties.outputs.resourceGroup.value')"
           echo "::set-output name=galleryName::$(echo "$RESULT" | jq --raw-output '.properties.outputs.galleryName.value')"
 
-      - id: packer-definitions
-        name: Detect Packer Definitions
+      - name: Detect Packer Definitions
+        id: packer-definitions
         run: | 
           echo "::set-output name=matrix::$(find . -type f -name 'packer.json' | jq -R -s -c 'split("\n")[:-1]')"
 
     outputs:
         matrix: ${{ steps.packer-definitions.outputs.matrix }}
+        resourceGroup: ${{ steps.azure-resources.outputs.resourceGroup }}
+        galleryName: ${{ steps.azure-resources.outputs.galleryName }}
 
   build:
     needs: prepare
@@ -76,6 +79,6 @@ jobs:
         run: |
           IMAGE="$(basename "$(dirname "${{ matrix.imagePath }}")")"
           SUBSCRIPTION="$(az account show --query 'id' -o tsv)"
-          RESOURCEGROUP=""
-          GALLERYNAME=""
+          RESOURCEGROUP="${{ needs.prepare.outputs.resourceGroup }}"
+          GALLERYNAME="${{ needs.prepare.outputs.galleryName }}"
           packer build -var "image=$IMAGE" -var "version=${{ steps.gitversion.outputs.MajorMinorPatch }}" -var "location=${{ env.location }}" -var "subscription=$SUBSCRIPTION" -var "resourceGroup=$RESOURCEGROUP" -var "galleryName=$GALLERYNAME" "${{ matrix.imagePath }}" 
