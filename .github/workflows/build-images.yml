@@ -20,7 +20,7 @@ jobs:
 
       - name: Detect Image Definitions
         run: | 
-          ls -d ./images/*/
+          find . -type f -name 'packer.json' | sed -r 's|/[^/]+$||' |sort -u
 
   # build:
   #   runs-on: ubuntu-latest
