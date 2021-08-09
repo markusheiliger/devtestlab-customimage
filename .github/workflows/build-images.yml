@@ -84,4 +84,4 @@ jobs:
           SUBSCRIPTION="$(az account show --query 'id' -o tsv)"
           RESOURCEGROUP="${{ needs.prepare.outputs.resourceGroup }}"
           GALLERYNAME="${{ needs.prepare.outputs.galleryName }}"
-          packer build -var "image=$IMAGE" -var "version=${{ steps.gitversion.outputs.MajorMinorPatch }}" -var "location=${{ env.location }}" -var "subscription=$SUBSCRIPTION" -var "resourceGroup=$RESOURCEGROUP" -var "galleryName=$GALLERYNAME" "${{ matrix.imagePath }}" 
+          packer build -force -var "image=$IMAGE" -var "version=${{ steps.gitversion.outputs.MajorMinorPatch }}" -var "location=${{ env.location }}" -var "subscription=$SUBSCRIPTION" -var "resourceGroup=$RESOURCEGROUP" -var "galleryName=$GALLERYNAME" "${{ matrix.imagePath }}" 
