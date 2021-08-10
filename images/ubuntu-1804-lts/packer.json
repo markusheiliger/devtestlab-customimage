@@ -51,5 +51,15 @@
 			"inline_shebang": "/bin/sh -x",
 			"type": "shell"
 		}
+	],
+	"post-processors": [
+		[
+			{
+				"inline": [
+					"az image delete -g {{user `resourceGroup`}} -n {{user `image`}}"
+				],
+				"type": "shell-local"
+			}
+		]
 	]
 }
