@@ -4,7 +4,7 @@
 		"version": "",
 		"location": "",
 		"subscription": "",
-		"resourceGroup":"",
+		"resourceGroup": "",
 		"galleryName": ""
 	},
 	"builders": [
@@ -17,17 +17,19 @@
 			"image_sku": "18.04-LTS",
 			"location": "{{user `location`}}",
 			"vm_size": "Standard_B1s",
+			"managed_image_name": "{{user `image`}}",
+			"managed_image_resource_group_name": "{{user `resourceGroup`}}",
 			"shared_image_gallery_destination": {
 				"subscription": "{{user `subscription`}}",
 				"resource_group": "{{user `resourceGroup`}}",
 				"gallery_name": "{{user `galleryName`}}",
 				"image_name": "{{user `image`}}",
 				"image_version": "{{user `version`}}",
-				"replication_regions": ["{{user `location`}}"],
+				"replication_regions": [
+					"{{user `location`}}"
+				],
 				"storage_account_type": "Standard_LRS"
-			},
-			"managed_image_name": "{{user `image`}}",
-			"managed_image_resource_group_name": "{{user `resourceGroup`}}"
+			}
 		}
 	],
 	"provisioners": [
