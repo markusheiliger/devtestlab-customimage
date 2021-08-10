@@ -43,6 +43,13 @@
 	"provisioners": [
 		{
 			"type": "powershell",
+			"script": "./scripts/windowsupdate.ps1"
+		},
+		{
+			"type": "windows-restart"
+		},
+		{
+			"type": "powershell",
 			"script": "./scripts/bginfo.ps1"
 		},
 		{
