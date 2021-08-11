@@ -59,6 +59,7 @@ jobs:
       images: ${{ steps.filter.outputs.changes }}
 
     steps:
+      - uses: actions/checkout@v2
 
       - name: Detect Image Changes
         uses: dorny/paths-filter@v2
