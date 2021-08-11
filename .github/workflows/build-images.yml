@@ -22,7 +22,6 @@ jobs:
 
     outputs:
         matrix: ${{ steps.packer-definitions.outputs.matrix }}
-        images: ${{ steps.image-folders.outputs.images }}
         resourceGroup: ${{ steps.azure-resources.outputs.resourceGroup }}
         galleryName: ${{ steps.azure-resources.outputs.galleryName }}
 
@@ -46,30 +45,8 @@ jobs:
         run: | 
           echo "::set-output name=matrix::$(find . -type f -name 'packer.json' | jq -R -s -c 'split("\n")[:-1]')"
 
-      - name: Detect Image Folders
-        id: image-folders
-        run: | 
-          echo "::set-output name=images::$(find . -type f -name 'packer.json' | sed -r 's|/[^/]+$||' | sort -u )"
-
-  detect:
-    needs: prepare
-    runs-on: ubuntu-latest
-
-    outputs:
-      images: ${{ steps.filter.outputs.changes }}
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Detect Image Changes
-        uses: dorny/paths-filter@v2
-        id: filter
-        with:
-          filters: ${{ needs.prepare.outputs.images }}
-
-
   build:
-    needs: [ prepare, detect ]
+    needs: prepare
     runs-on: ubuntu-latest
 
     strategy:
