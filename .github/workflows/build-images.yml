@@ -64,7 +64,7 @@ jobs:
       - name: Setup Packer
         uses: hashicorp-contrib/setup-packer@v1.0.0
 
-      - name: Prepare Image
+      - name: Ensure Image
         continue-on-error: true 
         run: |
 
@@ -96,17 +96,27 @@ jobs:
           RESOURCEGROUP="${{ needs.prepare.outputs.resourceGroup }}"
           GALLERYNAME="${{ needs.prepare.outputs.galleryName }}"
 
-          # strip out version information - this key is not supported by packer
-          cat <<< $(jq 'del(.version)' ${{ matrix.imagePath }}) > ${{ matrix.imagePath }}
+          if [[ -z "$(az sig image-version list --gallery-image-definition $IMAGENAME --gallery-name $GALLERYNAME --resource-group $RESOURCEGROUP --query "[?name == '1.0.1'] | [0]")" ]]; then
           
-          # switch to image folder to enable relative paths and run packer
-          cd $IMAGEFOLDER; packer build -force \
-            -var "image=$IMAGENAME" \
-            -var "version=$IMAGEVERSION" \ 
-            -var "location=${{ env.location }}" \
-            -var "subscription=$SUBSCRIPTION" \
-            -var "resourceGroup=$RESOURCEGROUP" \
-            -var "galleryName=$GALLERYNAME" \
-            -var "branch=${{ github.head_ref }}"
-            -var "commit=${{ github.sha }}"
-            "$(basename "${{ matrix.imagePath }}")" 
+            # strip out version information - this key is not supported by packer
+            cat <<< $(jq 'del(.version)' ${{ matrix.imagePath }}) > ${{ matrix.imagePath }}
+            
+            # switch to image folder to enable relative paths and run packer
+            cd $IMAGEFOLDER; packer build -force \
+              -var "image=$IMAGENAME" \
+              -var "version=$IMAGEVERSION" \ 
+              -var "location=${{ env.location }}" \
+              -var "subscription=$SUBSCRIPTION" \
+              -var "resourceGroup=$RESOURCEGROUP" \
+              -var "galleryName=$GALLERYNAME" \
+              -var "branch=${{ github.head_ref }}"
+              -var "commit=${{ github.sha }}"
+              "$(basename "${{ matrix.imagePath }}")" 
+
+          else
+
+            # the image version already exists - we are not going to replace it
+            echo "::warning ::Version $IMAGEVERSION of image $IMAGENAME already exists"
+
+          fi
+
