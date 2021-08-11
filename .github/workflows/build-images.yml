@@ -84,7 +84,8 @@ jobs:
             --offer $IMAGEOFFER \
             --sku $IMAGESKU \
             --os-type $IMAGEOS \
-            --only-show-errors
+            --only-show-errors \
+            --output none
 
       - name: Build Image      
         run: |
@@ -96,7 +97,7 @@ jobs:
           RESOURCEGROUP="${{ needs.prepare.outputs.resourceGroup }}"
           GALLERYNAME="${{ needs.prepare.outputs.galleryName }}"
 
-          if [[ -z "$(az sig image-version list --gallery-image-definition $IMAGENAME --gallery-name $GALLERYNAME --resource-group $RESOURCEGROUP --query "[?name == '1.0.1'] | [0]")" ]]; then
+          if [[ -z "$(az sig image-version list --gallery-image-definition $IMAGENAME --gallery-name $GALLERYNAME --resource-group $RESOURCEGROUP --query "[?name == '$IMAGEVERSION'] | [0]")" ]]; then
           
             # strip out version information - this key is not supported by packer
             cat <<< $(jq 'del(.version)' ${{ matrix.imagePath }}) > ${{ matrix.imagePath }}
