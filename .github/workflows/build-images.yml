@@ -69,7 +69,9 @@ jobs:
 
 
   build:
-    needs: prepare, detect
+    needs: |
+      prepare
+      detect
     runs-on: ubuntu-latest
 
     strategy:
