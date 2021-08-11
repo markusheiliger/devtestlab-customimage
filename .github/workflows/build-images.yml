@@ -110,8 +110,8 @@ jobs:
               -var "subscription=$SUBSCRIPTION" \
               -var "resourceGroup=$RESOURCEGROUP" \
               -var "galleryName=$GALLERYNAME" \
-              -var "branch=${{ github.head_ref }}"
-              -var "commit=${{ github.sha }}"
+              -var "branch=${{ github.head_ref }}" \
+              -var "commit=${{ github.sha }}" \
               "$(basename "${{ matrix.imagePath }}")" 
 
           else
