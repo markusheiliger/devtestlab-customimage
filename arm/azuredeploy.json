@@ -64,7 +64,22 @@
 							"apiVersion":"2018-10-15-preview",
 							"type":"Microsoft.DevTestLab/labs",
 							"name":"[variables('labName')]",
-							"location":"[resourceGroup().location]"
+							"location":"[resourceGroup().location]",
+							"resources": [
+								{
+									"apiVersion":"2018-10-15-preview",
+									"name":"myGallery",
+									"type":"sharedGalleries",
+									"dependsOn": [
+										"[resourceId('Microsoft.DevTestLab/labs', variables('labName'))]",
+										"[resourceId('Microsoft.Compute/galleries', parameters('galleryName'))]"
+									],
+									"properties": {
+										"galleryId":"[resourceId('Microsoft.Compute/galleries', parameters('galleryName'))]",
+										"allowAllImages": "Enabled"
+									}
+								}
+						    ]
 						}
 					],
 					"outputs": {}
