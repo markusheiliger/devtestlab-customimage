@@ -89,7 +89,7 @@ jobs:
       - name: Build Image      
         run: |
 
-          IMAGEFOLDER="$(dirname "${{ matrix.imagePath }}")"
+          IMAGEFOLDER="$(dirname ${{ matrix.imagePath }})"
           IMAGENAME="$(basename "$IMAGEFOLDER")"
           IMAGEVERSION="$(cat ${{ matrix.imagePath }} | jq --raw-output '.version')"
           SUBSCRIPTION="$(az account show --query 'id' -o tsv)"
