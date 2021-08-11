@@ -1,11 +1,14 @@
 {
+	"version": "1.0.0",
 	"variables": {
 		"image": "",
 		"version": "",
 		"location": "",
 		"subscription": "",
 		"resourceGroup": "",
-		"galleryName": ""
+		"galleryName": "",
+		"commit": "",
+		"branch": ""
 	},
 	"builders": [
 		{
@@ -37,6 +40,12 @@
 					"{{user `location`}}"
 				],
 				"storage_account_type": "Standard_LRS"
+			},
+
+			"azure_tags": {
+				"build": "{{isotime}}",
+				"commit": "{{user `commit`}}",
+				"branch": "{{user `branch`}}"
 			}
 		}
 	],

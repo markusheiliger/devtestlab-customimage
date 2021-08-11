@@ -56,21 +56,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Unshallow Repository
-        run: |
-          git fetch --unshallow --update-head-ok origin '+refs/heads/*:refs/heads/*'
-
-      - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v0.9.7
-        with:
-          versionSpec: '5.x'
-
-      - name: Determine Version
-        uses: gittools/actions/gitversion/execute@v0.9.7
-        id:   gitversion
-        with:
-          useConfigFile: true
-
       - name: Login to Azure
         uses: azure/login@v1
         with:
@@ -80,22 +65,48 @@ jobs:
         uses: hashicorp-contrib/setup-packer@v1.0.0
 
       - name: Prepare Image
-        continue-on-error: true
+        continue-on-error: true 
         run: |
+
+          RESOURCEGROUP="${{ needs.prepare.outputs.resourceGroup }}"
+          GALLERYNAME="${{ needs.prepare.outputs.galleryName }}"
           IMAGE="$(basename "$(dirname "${{ matrix.imagePath }}")")"
           IMAGEOFFER="$(cat ${{ matrix.imagePath }} | jq --raw-output '.builders[] | select(.type == "azure-arm") | .image_offer')"
           IMAGESKU="$(cat ${{ matrix.imagePath }} | jq --raw-output '.builders[] | select(.type == "azure-arm") | .image_sku')"
-          RESOURCEGROUP="${{ needs.prepare.outputs.resourceGroup }}"
-          GALLERYNAME="${{ needs.prepare.outputs.galleryName }}"
-          OSTYPE="$(cat ${{ matrix.imagePath }} | jq --raw-output '.builders[] | select(.type == "azure-arm") | .os_type')"
-          az sig image-definition create -g $RESOURCEGROUP --gallery-name $GALLERYNAME --gallery-image-definition $IMAGE --publisher ${{ github.repository_owner }} --offer $IMAGEOFFER --sku $IMAGESKU --os-type $OSTYPE --only-show-errors -o none
+          IMAGEOS="$(cat ${{ matrix.imagePath }} | jq --raw-output '.builders[] | select(.type == "azure-arm") | .os_type')"
+          
+          # create image definition in gallery - this will fail if already exists 
+          az sig image-definition create \
+            --resource-group $RESOURCEGROUP \
+            --gallery-name $GALLERYNAME \
+            --gallery-image-definition $IMAGE \
+            --publisher ${{ github.repository_owner }} \
+            --offer $IMAGEOFFER \
+            --sku $IMAGESKU \
+            --os-type $IMAGEOS \
+            --only-show-errors
 
       - name: Build Image      
-        if: ${{ success }}
         run: |
-          FOLDER="$(dirname "${{ matrix.imagePath }}")"
-          IMAGE="$(basename "$FOLDER")"
+
+          IMAGEFOLDER="$(dirname "${{ matrix.imagePath }}")"
+          IMAGENAME="$(basename "$IMAGEFOLDER")"
+          IMAGEVERSION="$(cat ${{ matrix.imagePath }} | jq --raw-output '.version')"
           SUBSCRIPTION="$(az account show --query 'id' -o tsv)"
           RESOURCEGROUP="${{ needs.prepare.outputs.resourceGroup }}"
           GALLERYNAME="${{ needs.prepare.outputs.galleryName }}"
-          cd $FOLDER; packer build -force -var "image=$IMAGE" -var "version=${{ steps.gitversion.outputs.MajorMinorPatch }}" -var "location=${{ env.location }}" -var "subscription=$SUBSCRIPTION" -var "resourceGroup=$RESOURCEGROUP" -var "galleryName=$GALLERYNAME" "$(basename "${{ matrix.imagePath }}")" 
+
+          # strip out version information - this key is not supported by packer
+          cat <<< $(jq 'del(.version)' ${{ matrix.imagePath }}) > ${{ matrix.imagePath }}
+          
+          # switch to image folder to enable relative paths and run packer
+          cd $IMAGEFOLDER; packer build -force \
+            -var "image=$IMAGENAME" \
+            -var "version=$IMAGEVERSION" \ 
+            -var "location=${{ env.location }}" \
+            -var "subscription=$SUBSCRIPTION" \
+            -var "resourceGroup=$RESOURCEGROUP" \
+            -var "galleryName=$GALLERYNAME" \
+            -var "branch=${{ github.head_ref }}"
+            -var "commit=${{ github.sha }}"
+            "$(basename "${{ matrix.imagePath }}")" 

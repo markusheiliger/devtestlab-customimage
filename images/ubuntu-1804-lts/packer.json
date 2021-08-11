@@ -1,20 +1,25 @@
 {
+	"version": "1.0.0",
 	"variables": {
 		"image": "",
 		"version": "",
 		"location": "",
 		"subscription": "",
 		"resourceGroup": "",
-		"galleryName": ""
+		"galleryName": "",
+		"commit": "",
+		"branch": ""
 	},
 	"builders": [
 		{
 			"type": "azure-arm",
 			"use_azure_cli_auth": true,
+
 			"os_type": "Linux",
 			"image_publisher": "Canonical",
 			"image_offer": "UbuntuServer",
 			"image_sku": "18.04-LTS",
+			
 			"location": "{{user `location`}}",
 			"vm_size": "Standard_B1s",
 			"managed_image_name": "{{user `image`}}",
@@ -29,6 +34,12 @@
 					"{{user `location`}}"
 				],
 				"storage_account_type": "Standard_LRS"
+			},
+
+			"azure_tags": {
+				"build": "{{isotime}}",
+				"commit": "{{user `commit`}}",
+				"branch": "{{user `branch`}}"
 			}
 		}
 	],
