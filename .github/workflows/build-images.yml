@@ -22,7 +22,7 @@ jobs:
 
     outputs:
         matrix: ${{ steps.packer-definitions.outputs.matrix }}
-        images: ${{ setps.image-folders.outputs.images }}
+        images: ${{ steps.image-folders.outputs.images }}
         resourceGroup: ${{ steps.azure-resources.outputs.resourceGroup }}
         galleryName: ${{ steps.azure-resources.outputs.galleryName }}
 
@@ -60,7 +60,7 @@ jobs:
 
     steps:
 
-      - name: Detect Image Folders
+      - name: Detect Image Changes
         uses: dorny/paths-filter@v2
         id: filter
         with:
