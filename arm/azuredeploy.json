@@ -22,7 +22,7 @@
 			"name": "[parameters('resourceGroup')]",
 			"type": "Microsoft.Resources/resourceGroups",
 			"apiVersion": "2019-10-01",
-			"location": "[deployment().location]",
+			"location": "[parameters('location')]"
 		},
 		{
 			"name": "[parameters('galleryName')]",
@@ -38,26 +38,33 @@
 				},
 				"mode": "Incremental",
 				"parameters": {
-					"location": {
-						"value": "[deployment().location]"
+					"galleryName": {
+						"value": "[parameters('galleryName')]"
 					}
 				},
 				"template": {
 					"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 					"contentVersion": "1.0.0.0",
 					"parameters": {
-						"location": {
+						"galleryName": {
 							"type": "string"
 						}
 					},
-					"variables": {},
+					"variables": {
+						"labName": "[concat(parameters('galleryName'),'-lab')]"
+					},
 					"resources": [
 						{
 							"type": "Microsoft.Compute/galleries",
-							"name": "gallery",
+							"name": "[parameters('galleryName')]",
 							"apiVersion": "2019-12-01",
-							"location": "[parameters('location')]"
-
+							"location": "[resourceGroup().location]"
+						},
+						{  
+							"apiVersion":"2018-10-15-preview",
+							"type":"Microsoft.DevTestLab/labs",
+							"name":"[variables('labName')]",
+							"location":"[resourceGroup().location]"
 						}
 					],
 					"outputs": {}
