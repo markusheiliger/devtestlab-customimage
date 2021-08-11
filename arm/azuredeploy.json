@@ -93,7 +93,31 @@
 										"status": "Enabled",
 										"threshold": "[concat('[', ']')]"
 									}
-								}
+								},
+								{
+									"apiVersion": "2018-10-15-preview",
+									"name": "Public Repo",
+									"type": "artifactSources",
+									"dependsOn":[
+										"[resourceId('Microsoft.DevTestLab/labs', variables('labName'))]"
+									],
+									"properties": {
+										"displayName": "Public Artifact Repo",
+										"status": "Disabled"
+									}
+								},
+								{
+									"apiVersion": "2018-10-15-preview",
+									"name": "Public Environment Repo",
+									"type": "artifactSources",
+									"dependsOn":[
+										"[resourceId('Microsoft.DevTestLab/labs', variables('labName'))]"
+									],
+									"properties": {
+										"displayName": "Public Environment Repo",
+										"status": "Disabled"
+									}
+								},
 							]
 						}
 					],
