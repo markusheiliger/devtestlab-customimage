@@ -91,6 +91,7 @@ jobs:
           az sig image-definition create -g $RESOURCEGROUP --gallery-name $GALLERYNAME --gallery-image-definition $IMAGE --publisher ${{ github.repository_owner }} --offer $IMAGEOFFER --sku $IMAGESKU --os-type $OSTYPE --only-show-errors -o none
 
       - name: Build Image      
+        if: ${{ success }}
         run: |
           FOLDER="$(dirname "${{ matrix.imagePath }}")"
           IMAGE="$(basename "$FOLDER")"
