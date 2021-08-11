@@ -20,6 +20,12 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
 
+    outputs:
+        matrix: ${{ steps.packer-definitions.outputs.matrix }}
+        images: ${{ setps.image-folders.outputs.images }}
+        resourceGroup: ${{ steps.azure-resources.outputs.resourceGroup }}
+        galleryName: ${{ steps.azure-resources.outputs.galleryName }}
+
     steps:
       - uses: actions/checkout@v2
 
@@ -43,12 +49,23 @@ jobs:
       - name: Detect Image Folders
         id: image-folders
         run: | 
-          find . -type f -name 'packer.json' | sed -r 's|/[^/]+$||' | sort -u | jq -R -s -c 'split("\n")[:-1]'
+          echo "::set-output name=images::$(find . -type f -name 'packer.json' | sed -r 's|/[^/]+$||' | sort -u )"
+
+  changes:
+    needs: prepare
+    runs-on: ubuntu-latest
 
     outputs:
-        matrix: ${{ steps.packer-definitions.outputs.matrix }}
-        resourceGroup: ${{ steps.azure-resources.outputs.resourceGroup }}
-        galleryName: ${{ steps.azure-resources.outputs.galleryName }}
+      images: ${{ steps.filter.outputs.changes }}
+
+    steps:
+
+      - name: Detect Image Folders
+        uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: ${{ needs.prepare.outputs.images }}
+
 
   build:
     needs: prepare
