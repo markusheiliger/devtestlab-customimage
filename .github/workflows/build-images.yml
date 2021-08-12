@@ -87,6 +87,8 @@ jobs:
       - name: Build Image      
         run: |
 
+          shopt extglob
+          
           IMAGEFOLDER="$(dirname ${{ matrix.imagePath }})"
           IMAGENAME="$(basename "$IMAGEFOLDER")"
           IMAGEVERSION="$(cat ${{ matrix.imagePath }} | jq --raw-output '.version')"
