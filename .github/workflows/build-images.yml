@@ -95,8 +95,11 @@ jobs:
           GALLERYNAME="${{ needs.prepare.outputs.galleryName }}"
           FORCEBUILD="false"
 
+          # dump bash version information
+          echo "${BASH_VERSION}"
+
           # enable extended globbing to support filter matching
-          shopt -s extglob
+          shopt -s extglob; shopt extglob
 
           while read IMAGEFILTER; do
             echo "Eval force filter $IMAGEFILTER on image name $IMAGENAME ..."
