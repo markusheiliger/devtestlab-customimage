@@ -93,7 +93,7 @@ jobs:
 
           while read IMAGEFILTER; do
             echo "Eval force filter $IMAGEFILTER on image name $IMAGENAME ..."
-            if [[ $IMAGENAME == $IMAGEFILTER ]]; then FORCEBUILD="true"; fi
+            if [[ ! -z "$IMAGEFILTER" ]] && [[ "$IMAGENAME" == "$IMAGEFILTER" ]]; then FORCEBUILD="true"; fi
           done < <(echo "${{ github.event.head_commit.message }}" | grep -Po '(?<=force\:)\S+')
 
           if [[ "$FORCEBUILD" == "true"]] || [[ -z "$(az sig image-version list --gallery-image-definition $IMAGENAME --gallery-name $GALLERYNAME --resource-group $RESOURCEGROUP --query "[?name == '$IMAGEVERSION'] | [0]")" ]]; then
