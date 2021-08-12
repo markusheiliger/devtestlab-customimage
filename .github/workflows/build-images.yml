@@ -5,6 +5,10 @@ env:
   galleryName: gallery
   location: westeurope
 
+defaults:
+  run:
+    shell: bash
+    
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
