@@ -87,8 +87,6 @@ jobs:
       - name: Build Image      
         run: |
 
-          shopt extglob
-          
           IMAGEFOLDER="$(dirname ${{ matrix.imagePath }})"
           IMAGENAME="$(basename "$IMAGEFOLDER")"
           IMAGEVERSION="$(cat ${{ matrix.imagePath }} | jq --raw-output '.version')"
@@ -96,6 +94,9 @@ jobs:
           RESOURCEGROUP="${{ needs.prepare.outputs.resourceGroup }}"
           GALLERYNAME="${{ needs.prepare.outputs.galleryName }}"
           FORCEBUILD="false"
+
+          # enable extended globbing to support filter matching
+          shopt -s extglob
 
           while read IMAGEFILTER; do
             echo "Eval force filter $IMAGEFILTER on image name $IMAGENAME ..."
