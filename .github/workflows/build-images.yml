@@ -103,7 +103,7 @@ jobs:
 
           while read IMAGEFILTER; do
             echo "Eval force filter $IMAGEFILTER on image name $IMAGENAME ..."
-            if [[ -n "$IMAGEFILTER" ]] && [[ "$IMAGENAME" == $IMAGEFILTER ]]; then 
+            if [[ -n "$IMAGEFILTER" && "$IMAGENAME" == $IMAGEFILTER ]]; then 
               echo "===> MATCH !!!"; FORCEBUILD="true"; break
             fi
           done < <("$(echo "${{ github.event.head_commit.message }}" | grep -Po '(?<=force\:)\S+')")
