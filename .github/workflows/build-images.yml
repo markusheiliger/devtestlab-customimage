@@ -8,7 +8,7 @@ env:
 defaults:
   run:
     shell: bash
-    
+
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
@@ -97,7 +97,7 @@ jobs:
 
           while read IMAGEFILTER; do
             echo "Eval force filter $IMAGEFILTER on image name $IMAGENAME ..."
-            if [[ ! -z "$IMAGEFILTER" ]] && [[ "$IMAGENAME" == "$IMAGEFILTER" ]]; then 
+            if [[ ! -z "$IMAGEFILTER" ]] && [[ $IMAGENAME == $IMAGEFILTER ]]; then 
               FORCEBUILD="true"
               break
             fi
