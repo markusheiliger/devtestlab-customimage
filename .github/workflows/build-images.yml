@@ -98,6 +98,7 @@ jobs:
           while read IMAGEFILTER; do
             echo "Eval force filter $IMAGEFILTER on image name $IMAGENAME ..."
             if [[ -n "$IMAGEFILTER" ]] && [[ $IMAGENAME == $IMAGEFILTER ]]; then 
+              echo "  ===> MATCH !!!"
               FORCEBUILD="true"
               break
             fi
