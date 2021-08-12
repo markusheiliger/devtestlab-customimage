@@ -97,7 +97,7 @@ jobs:
 
           while read IMAGEFILTER; do
             echo "Eval force filter $IMAGEFILTER on image name $IMAGENAME ..."
-            if [[ ! -z "$IMAGEFILTER" ]] && [[ $IMAGENAME == $IMAGEFILTER ]]; then 
+            if [[ -n "$IMAGEFILTER" ]] && [[ $IMAGENAME == $IMAGEFILTER ]]; then 
               FORCEBUILD="true"
               break
             fi
