@@ -89,8 +89,14 @@ jobs:
           SUBSCRIPTION="$(az account show --query 'id' -o tsv)"
           RESOURCEGROUP="${{ needs.prepare.outputs.resourceGroup }}"
           GALLERYNAME="${{ needs.prepare.outputs.galleryName }}"
+          FORCEBUILD="false"
 
-          if [[ -z "$(az sig image-version list --gallery-image-definition $IMAGENAME --gallery-name $GALLERYNAME --resource-group $RESOURCEGROUP --query "[?name == '$IMAGEVERSION'] | [0]")" ]]; then
+          while read IMAGEFILTER; do
+            echo "Eval force filter $IMAGEFILTER on image name $IMAGENAME ..."
+            FORCEBUILD=$([[ $IMAGENAME == $IMAGEFILTER ]] && echo "true" || echo "$FORCEBUILD")
+          done < <(echo "${{ github.event.head_commit.message }}" | grep -Po '(?<=force\:)\S+')
+
+          if [[ "$FORCEBUILD" == "true"]] || [[ -z "$(az sig image-version list --gallery-image-definition $IMAGENAME --gallery-name $GALLERYNAME --resource-group $RESOURCEGROUP --query "[?name == '$IMAGEVERSION'] | [0]")" ]]; then
           
             # strip out version information - this key is not supported by packer
             cat <<< $(jq 'del(.version)' ${{ matrix.imagePath }}) > ${{ matrix.imagePath }}
