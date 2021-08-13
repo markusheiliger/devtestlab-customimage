@@ -37,7 +37,7 @@ jobs:
             for IMAGEPATH in $IMAGEPATHS; do
               echo "$MAGEPATH"
             done
-          done < <("$(echo "${{ github.event.head_commit.message }}" | grep -Po '(?<=force\:)\S+')")
+          done < <(echo "${{ github.event.head_commit.message }}" | grep -Po '(?<=force\:)\S+')
           touch images.tmp && cat images.tmp
 
       - name: Login to Azure
