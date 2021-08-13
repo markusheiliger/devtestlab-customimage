@@ -33,10 +33,12 @@ jobs:
         run: | 
 
           while read IMAGEFILTER; do
+            echo "==> $IMAGEFILTER"
             IMAGEPATHS="./**/$IMAGEFILTER/packer.json"
             for IMAGEPATH in $IMAGEPATHS; do
-              echo "$MAGEPATH"
+              echo "    $IMAGEPATH"
             done
+            find . -path "$IMAGEPATHS"
           done < <(echo "${{ github.event.head_commit.message }}" | grep -Po '(?<=force\:)\S+')
           touch images.tmp && cat images.tmp
 
