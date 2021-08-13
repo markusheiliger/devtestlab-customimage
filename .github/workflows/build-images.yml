@@ -32,8 +32,8 @@ jobs:
         run: | 
 
           while read IMAGEFILTER; do
-            echo "Check path: **\/${IMAGEFILTER//[$'\t\r\n ']}\/packer.json"
-            find . -path "**/$IMAGEFILTER/packer.json" >> images.tmp
+            echo "Check path: **\/$IMAGEFILTER\/packer.json"
+            find . -path "**\/$IMAGEFILTER\/packer.json" >> images.tmp
           done < <("$(echo "${{ github.event.head_commit.message }}" | grep -Po '(?<=force\:)\S+')")
           touch images.tmp && cat images.tmp
 
