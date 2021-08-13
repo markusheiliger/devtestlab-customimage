@@ -32,8 +32,8 @@ jobs:
         run: | 
 
           while read IMAGEFILTER; do
-            echo "Check path: **\/$IMAGEFILTER\/packer.json"
-            find . -path "**\/$IMAGEFILTER\/packer.json" >> images.tmp
+            echo "Check path: **/${IMAGEFILTER}/packer.json"
+            find . -path "**/${IMAGEFILTER}/packer.json" >> images.tmp
           done < <("$(echo "${{ github.event.head_commit.message }}" | grep -Po '(?<=force\:)\S+')")
           touch images.tmp && cat images.tmp
 
@@ -45,7 +45,7 @@ jobs:
       - name: Deploy Azure Resources
         id: azure-resources
         run: |
-          RESULT=$(az deployment sub create --location ${{ env.location }} --template-file ./arm/azuredeploy.json --parameters resourceGroup=${{ env.resourceGroup }} galleryName=${{ env.galleryName }} location=${{ env.location }} -o json)
+          RESULT=$(az deployment sub create --name ${{ github.sha }} --location ${{ env.location }} --template-file ./arm/azuredeploy.json --parameters resourceGroup=${{ env.resourceGroup }} galleryName=${{ env.galleryName }} location=${{ env.location }} -o json)
           echo "::set-output name=resourceGroup::$(echo "$RESULT" | jq --raw-output '.properties.outputs.resourceGroup.value')"
           echo "::set-output name=galleryName::$(echo "$RESULT" | jq --raw-output '.properties.outputs.galleryName.value')"
 
