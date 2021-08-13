@@ -28,6 +28,15 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Test
+        run: | 
+
+          while read IMAGEFILTER; do
+            echo "Check path: **\/${IMAGEFILTER//[$'\t\r\n ']}\/packer.json"
+            find . -path "**/$IMAGEFILTER/packer.json" >> images.tmp
+          done < <("$(echo "${{ github.event.head_commit.message }}" | grep -Po '(?<=force\:)\S+')")
+          touch images.tmp && cat images.tmp
+
       - name: Login to Azure
         uses: azure/login@v1
         with:
@@ -40,14 +49,6 @@ jobs:
           echo "::set-output name=resourceGroup::$(echo "$RESULT" | jq --raw-output '.properties.outputs.resourceGroup.value')"
           echo "::set-output name=galleryName::$(echo "$RESULT" | jq --raw-output '.properties.outputs.galleryName.value')"
 
-      - name: Test
-        run: | 
-
-          while read IMAGEFILTER; do
-            echo "Check path: **/$IMAGEFILTER/packer.json"
-            find . -path "**/$IMAGEFILTER/packer.json" >> images.tmp
-          done < <("$(echo "${{ github.event.head_commit.message }}" | grep -Po '(?<=force\:)\S+')")
-          cat images.tmp
 
       - name: Detect Packer Definitions
         id: packer-definitions
