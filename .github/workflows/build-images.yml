@@ -143,7 +143,7 @@ jobs:
           echo "IMAGEDEFIITION: $(jq . ${{ matrix.imagePath }})"
 
           # switch context to image folder 
-          cd $(echo $IMAGEFOLDER | tr -d '\r')
+          cd "$(echo $IMAGEFOLDER | tr -d '\r')"; echo $PWD
           
           # run packer to build the image
           packer build -force \
