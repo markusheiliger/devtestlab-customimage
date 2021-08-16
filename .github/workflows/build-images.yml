@@ -89,32 +89,16 @@ jobs:
               echo "::set-output name=matrix::$(printf '%s\n' "${IMAGES[@]}" | jq -R -s -c 'split("\n")[:-1]')"
           fi
 
-  cleanup:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Login to Azure
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Delete Artifacts
-        run: |
-
-          while read RESOURCEGROUP; do
-            az group delete --resource-group $RESOURCEGROUP --no-wait --yes
-          done < <(az group list --query "[?starts_with(@.name, 'pkr-Resource-Group-')].name" -o tsv)
-
   build:
-    needs: [ prepare, cleanup ]
+    needs: prepare
     runs-on: ubuntu-latest
+
+    # this is needed to avoid workflow errors in case of an empty matrix
+    if: ${{ fromJSON( needs.prepare.outputs.matrix )[0] }}
 
     strategy:
         matrix:
             imagePath: ${{ fromJson(needs.prepare.outputs.matrix) }}
-
-    # this is needed to avoid workflow errors in case of an empty matrix
-    if: ${{ fromJSON( needs.prepare.outputs.matrix )[0] }}
 
     steps:
       - uses: actions/checkout@v2
@@ -165,3 +149,22 @@ jobs:
           # run packer to build the image
           packer build -force -var "image=$IMAGENAME" -var "version=$IMAGEVERSION" -var "location=${{ env.location }}" -var "subscription=$(az account show --query 'id' -o tsv)" -var "resourceGroup=${{ env.resourceGroup }}" -var "galleryName=${{ env.galleryName }}" -var "branch=${{ github.ref }}" -var "commit=${{ github.sha }}" ./packer.json 
 
+  cleanup:
+    needs: build
+    runs-on: ubuntu-latest
+
+    # ensure we always cleanup 
+    if: always()
+
+    steps:
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Delete Artifacts
+        run: |
+
+          while read RESOURCEGROUP; do
+            az group delete --resource-group $RESOURCEGROUP --no-wait --yes
+          done < <(az group list --query "[?starts_with(@.name, 'pkr-Resource-Group-')].name" -o tsv)
