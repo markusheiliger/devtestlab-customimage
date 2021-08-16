@@ -134,6 +134,10 @@ jobs:
           IMAGENAME="$(basename "$IMAGEFOLDER")"
           IMAGEVERSION="$(cat ${{ matrix.imagePath }} | jq --raw-output '.version')"
 
+          echo "IMAGEFOLDER=$IMAGEFOLDER"
+          echo "IMAGENAME=$IMAGENAME"
+          echo "IMAGEVERSION=$IMAGEVERSION"
+
           # strip out version information - this key is not supported by packer
           cat <<< $(jq 'del(.version)' ${{ matrix.imagePath }}) > ${{ matrix.imagePath }}
           
