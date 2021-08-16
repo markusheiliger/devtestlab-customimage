@@ -146,14 +146,5 @@ jobs:
           cd "$(echo $IMAGEFOLDER | tr -d '\r')"; echo "Executing $(packer version) in $PWD"
                     
           # run packer to build the image
-          packer build -force \
-            -var "image=$IMAGENAME" \
-            -var "version=$IMAGEVERSION" \ 
-            -var "location=${{ env.location }}" \
-            -var "subscription=$(az account show --query 'id' -o tsv)" \
-            -var "resourceGroup=${{ env.resourceGroup }}" \
-            -var "galleryName=${{ env.galleryName }}" \
-            -var "branch=${{ github.head_ref }}" \
-            -var "commit=${{ github.sha }}" \
-            ./packer.json 
+          packer build -force -var "image=$IMAGENAME" -var "version=$IMAGEVERSION" -var "location=${{ env.location }}" -var "subscription=$(az account show --query 'id' -o tsv)" -var "resourceGroup=${{ env.resourceGroup }}" -var "galleryName=${{ env.galleryName }}" -var "branch=${{ github.ref }}" -var "commit=${{ github.sha }}" ./packer.json 
 
