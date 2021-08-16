@@ -28,20 +28,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Test
-        shell: bash
-        run: | 
-
-          while read IMAGEFILTER; do
-            echo "==> $IMAGEFILTER"
-            IMAGEPATHS="./**/$IMAGEFILTER/packer.json"
-            for IMAGEPATH in $IMAGEPATHS; do
-              echo "    $IMAGEPATH"
-            done
-            find . -path "$IMAGEPATHS"
-          done < <(echo "${{ github.event.head_commit.message }}" | grep -Po '(?<=force\:)\S+')
-          touch images.tmp && cat images.tmp
-
       - name: Login to Azure
         uses: azure/login@v1
         with:
@@ -58,7 +44,43 @@ jobs:
       - name: Detect Packer Definitions
         id: packer-definitions
         run: | 
-          echo "::set-output name=matrix::$(find . -type f -name 'packer.json' | jq -R -s -c 'split("\n")[:-1]')"
+
+          IMAGES=()
+        
+          while read IMAGE; do
+
+            IMAGEFOLDER="$(dirname "$IMAGE")"
+            IMAGENAME="$(basename "$IMAGEFOLDER")"
+            IMAGEVERSION="$(cat "$IMAGE" | jq --raw-output '.version')"
+            
+            if [[ -z "$IMAGEVERSION"]]; then
+            
+              echo "::warning::Skipping $IMAGE because of missing version information"
+            
+            elif [[ -z "$(az sig image-version list --gallery-image-definition $IMAGENAME --gallery-name $GALLERYNAME --resource-group $RESOURCEGROUP --query "[?name == '$IMAGEVERSION'] | [0]")" ]]; then
+
+              echo "Detected image $IMAGE (new version)"
+              IMAGES+=("$IMAGE")
+
+            else
+
+              while read IMAGEFILTER; do
+                readarray -d '' FORCEPATTERNS < <(find . -type f -path "**/$IMAGEFILTER/packer.json" -print0)
+                if [[ "${FORCEPATTERNS[@]}" == "$IMAGE" ]]; then
+                  echo "Detected image $IMAGE (force update)"
+                  IMAGES+=("$IMAGE")
+                fi
+              done < <(echo "${{ github.event.head_commit.message }}" | grep -Po '(?<=force\:)\S+')
+
+            fi
+
+          done < <(find . -type f -path './images/*/packer.json')
+
+          if [ ${#IMAGES[@]} -eq 0 ]; then
+              echo "::set-output name=matrix::[]"
+          else
+              echo "::set-output name=matrix::$(printf '%s\n' "${IMAGES[@]}" | jq -R -s -c 'split("\n")[:-1]')"
+          fi
 
   build:
     needs: prepare
