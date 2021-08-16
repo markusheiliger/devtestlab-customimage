@@ -62,7 +62,7 @@ jobs:
             else
 
               while read IMAGEFILTER; do
-                readarray -d '' FORCEPATTERNS < <(find . -type f -path "**/$IMAGEFILTER/packer.json" -print0)
+                readarray -d '' FORCEPATTERNS < <(find . -type f -path "./images/$IMAGEFILTER/packer.json" -print0)
                 if [[ "${FORCEPATTERNS[@]}" == "$IMAGE" ]]; then
                   echo "Detected image $IMAGE (force update)"
                   IMAGES+=("$IMAGE")
@@ -87,6 +87,7 @@ jobs:
         matrix:
             imagePath: ${{ fromJson(needs.prepare.outputs.matrix) }}
 
+    # this is needed to avoid workflow errors in case of an empty matrix
     if: ${{ fromJSON( needs.prepare.outputs.matrix ).include[0] }}
 
     steps:
