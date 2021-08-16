@@ -89,8 +89,24 @@ jobs:
               echo "::set-output name=matrix::$(printf '%s\n' "${IMAGES[@]}" | jq -R -s -c 'split("\n")[:-1]')"
           fi
 
+  cleanup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Delete Artifacts
+        run: |
+
+          while read RESOURCEGROUP; do
+            az group delete --resource-group $RESOURCEGROUP --no-wait --yes
+          done < <(az group list --query "[?starts_with(@.name, 'pkr-Resource-Group-')].name" -o tsv)
+
   build:
-    needs: prepare
+    needs: [ prepare, cleanup ]
     runs-on: ubuntu-latest
 
     strategy:
@@ -128,6 +144,7 @@ jobs:
         uses: hashicorp-contrib/setup-packer@v1.0.0
 
       - name: Build Image      
+        timeout-minutes: 60
         run: |
 
           IMAGEFOLDER="$(dirname ${{ matrix.imagePath }})"
