@@ -57,7 +57,7 @@ jobs:
             
               echo "::warning::Skipping $IMAGE because of missing version information"
             
-            elif [[ -z "$(az sig image-version list --gallery-image-definition $IMAGENAME --gallery-name $GALLERYNAME --resource-group $RESOURCEGROUP --query "[?name == '$IMAGEVERSION'] | [0]")" ]]; then
+            elif [[ -z "$(az sig image-version list --gallery-image-definition $IMAGENAME --gallery-name ${{ steps.azure-resources.outputs.galleryName }} --resource-group ${{ steps.azure-resources.outputs.resourceGroup }} --query "[?name == '$IMAGEVERSION'] | [0]")" ]]; then
 
               echo "Detected image $IMAGE (new version)"
               IMAGES+=("$IMAGE")
