@@ -98,7 +98,7 @@ jobs:
             imagePath: ${{ fromJson(needs.prepare.outputs.matrix) }}
 
     # this is needed to avoid workflow errors in case of an empty matrix
-    if: ${{ fromJSON( needs.prepare.outputs.matrix ).imagePath[0] }}
+    if: ${{ fromJSON( needs.prepare.outputs.matrix )[0] }}
 
     steps:
       - uses: actions/checkout@v2
