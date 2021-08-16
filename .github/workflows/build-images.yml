@@ -65,7 +65,7 @@ jobs:
                 readarray -d '' FORCEPATTERNS < <(find . -type f -path "./images/$IMAGEFILTER/packer.json" -print0)
                 echo "Eval force filter '$IMAGEFILTER' on image '$IMAGE'"; printf '%s\n' "${FORCEPATTERNS[@]}"
                 if [[ "${FORCEPATTERNS[@]}" == "$IMAGE" ]]; then
-                  echo "Detected image $IMAGE (force update)"
+                  echo "Detected force update of image '$IMAGE'"
                   IMAGES+=("$IMAGE")
                   break
                 fi
