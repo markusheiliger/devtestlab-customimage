@@ -22,7 +22,7 @@ jobs:
 
     outputs:
         matrix: ${{ steps.packer-definitions.outputs.matrix }}
-
+        
     steps:
       - uses: actions/checkout@v2
 
@@ -117,8 +117,8 @@ jobs:
 
           # create image definition in gallery - this will fail if already exists 
           az sig image-definition create \
-            --resource-group "${{ needs.prepare.outputs.resourceGroup }}" \
-            --gallery-name "${{ needs.prepare.outputs.galleryName }}" \
+            --resource-group "${{ env.resourceGroup }}" \
+            --gallery-name "${{ env.galleryName }}" \
             --gallery-image-definition "$(basename "$(dirname "${{ matrix.imagePath }}")")" \
             --publisher "${{ github.repository_owner }}" \
             --offer "$(cat ${{ matrix.imagePath }} | jq --raw-output '.builders[] | select(.type == "azure-arm") | .image_offer')" \
@@ -133,7 +133,6 @@ jobs:
           IMAGEFOLDER="$(dirname ${{ matrix.imagePath }})"
           IMAGENAME="$(basename "$IMAGEFOLDER")"
           IMAGEVERSION="$(cat ${{ matrix.imagePath }} | jq --raw-output '.version')"
-          SUBSCRIPTION="$(az account show --query 'id' -o tsv)"
 
           # strip out version information - this key is not supported by packer
           cat <<< $(jq 'del(.version)' ${{ matrix.imagePath }}) > ${{ matrix.imagePath }}
@@ -143,9 +142,9 @@ jobs:
             -var "image=$IMAGENAME" \
             -var "version=$IMAGEVERSION" \ 
             -var "location=${{ env.location }}" \
-            -var "subscription=$SUBSCRIPTION" \
-            -var "resourceGroup=$RESOURCEGROUP" \
-            -var "galleryName=$GALLERYNAME" \
+            -var "subscription=$(az account show --query 'id' -o tsv)" \
+            -var "resourceGroup=${{ env.resourceGroup }}" \
+            -var "galleryName=${{ env.galleryName }}" \
             -var "branch=${{ github.head_ref }}" \
             -var "commit=${{ github.sha }}" \
             "$(basename "${{ matrix.imagePath }}")" 
