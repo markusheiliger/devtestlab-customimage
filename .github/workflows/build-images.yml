@@ -53,7 +53,7 @@ jobs:
             IMAGENAME="$(basename "$IMAGEFOLDER")"
             IMAGEVERSION="$(cat "$IMAGE" | jq --raw-output '.version')"
             
-            if [[ -z "$IMAGEVERSION"]]; then
+            if [[ -z "$IMAGEVERSION" ]]; then
             
               echo "::warning::Skipping $IMAGE because of missing version information"
             
