@@ -87,6 +87,8 @@ jobs:
         matrix:
             imagePath: ${{ fromJson(needs.prepare.outputs.matrix) }}
 
+    if: ${{ fromJSON( needs.prepare.outputs.matrix ).include[0] }}
+
     steps:
       - uses: actions/checkout@v2
 
