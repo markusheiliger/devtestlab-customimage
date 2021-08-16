@@ -141,6 +141,9 @@ jobs:
           # strip out version information - this key is not supported by packer
           cat <<< $(jq 'del(.version)' ${{ matrix.imagePath }}) > ${{ matrix.imagePath }}
           
+          # pretty print final image definition
+          jq . ${{ matrix.imagePath }}
+
           # switch to image folder to enable relative paths and run packer
           cd $IMAGEFOLDER; packer build -force \
             -var "image=$IMAGENAME" \
