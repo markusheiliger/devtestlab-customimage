@@ -142,8 +142,11 @@ jobs:
           echo "IMAGEVERSION:   $IMAGEVERSION"
           echo "IMAGEDEFIITION: $(jq . ${{ matrix.imagePath }})"
 
-          # switch to image folder to enable relative paths and run packer
-          cd "$IMAGEFOLDER"; packer build -force \
+          # switch context to image folder 
+          cd $(echo $IMAGEFOLDER | tr -d '\r')
+          
+          # run packer to build the image
+          packer build -force \
             -var "image=$IMAGENAME" \
             -var "version=$IMAGEVERSION" \ 
             -var "location=${{ env.location }}" \
