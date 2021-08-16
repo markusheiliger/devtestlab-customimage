@@ -62,11 +62,12 @@ jobs:
             else
 
               while read IMAGEFILTER; do
-                echo "Eval force filter: $IMAGEFILTER"; find . -type f -path "./images/$IMAGEFILTER/packer.json"
+                echo "Eval force filter '$IMAGEFILTER' on image '$IMAGE'"; find . -type f -path "./images/$IMAGEFILTER/packer.json"
                 readarray -d '' FORCEPATTERNS < <(find . -type f -path "./images/$IMAGEFILTER/packer.json" -print0)
                 if [[ "${FORCEPATTERNS[@]}" == "$IMAGE" ]]; then
                   echo "Detected image $IMAGE (force update)"
                   IMAGES+=("$IMAGE")
+                  break
                 fi
               done < <(echo "${{ github.event.head_commit.message }}" | grep -Po '(?<=force\:)\S+')
 
@@ -75,8 +76,10 @@ jobs:
           done < <(find . -type f -path './images/*/packer.json')
 
           if [ ${#IMAGES[@]} -eq 0 ]; then
+              echo "No images to build"
               echo "::set-output name=matrix::[]"
           else
+              echo "Images to build:"; printf '%s\n' "${IMAGES[@]}"
               echo "::set-output name=matrix::$(printf '%s\n' "${IMAGES[@]}" | jq -R -s -c 'split("\n")[:-1]')"
           fi
 
