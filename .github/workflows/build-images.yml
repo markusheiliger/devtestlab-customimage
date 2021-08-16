@@ -62,12 +62,18 @@ jobs:
             else
 
               while read IMAGEFILTER; do
-                readarray -d '' FORCEPATTERNS < <(find . -type f -path "./images/$IMAGEFILTER/packer.json" -print0)
-                echo "Eval force filter '$IMAGEFILTER' on image '$IMAGE'"; printf '%s\n' "${FORCEPATTERNS[@]}"
-                if [[ "\t${FORCEPATTERNS[@]}\t" =~ "\t$IMAGE\t" ]]; then
+                if [[ "$IMAGEFILTER" == "*" ]]; then
                   echo "Detected force update of image '$IMAGE'"
                   IMAGES+=("$IMAGE")
                   break
+                else
+                  readarray -d '' FORCEPATTERNS < <(find . -type f -path "./images/$IMAGEFILTER/packer.json" -print0)
+                  echo "Eval force filter '$IMAGEFILTER' on image '$IMAGE'"; printf '%s\n' "${FORCEPATTERNS[@]}"
+                  if [[ "|${FORCEPATTERNS[@]}|" =~ "|$IMAGE|" ]]; then
+                    echo "Detected force update of image '$IMAGE'"
+                    IMAGES+=("$IMAGE")
+                    break
+                  fi
                 fi
               done < <(echo "${{ github.event.head_commit.message }}" | grep -Po '(?<=force\:)\S+')
 
